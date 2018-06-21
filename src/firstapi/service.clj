@@ -12,7 +12,14 @@
 
 (defn home-page
   [request]
-  (ring-resp/response "Hello World!"))
+  (ring-resp/response "Your todo list"))
+
+(defn test-data
+  [request]
+  (ring-resp/response [{:task "Make an API" :text "make sure it works before you present it"}
+                      {:task "Ask Greg" :text "See if I can set up the repl better"}]))
+
+;;(def counter (atom 0))
 
 ;; Defines "/" and "/about" routes with their associated :get handlers.
 ;; The interceptors defined after the verb map (e.g., {:get home-page}
@@ -20,19 +27,23 @@
 (def common-interceptors [(body-params/body-params) http/html-body])
 
 ;; Tabular routes
-(def routes #{["/" :get (conj common-interceptors `home-page)]
-              ["/about" :get (conj common-interceptors `about-page)]})
+; (def routes #{["/" :get (conj common-interceptors `home-page)]
+;               ["/about" :get (conj common-interceptors `about-page)]
+;               ["/test" :get (conj common-interceptors `test-data)]
+;               ["/inc" :get (fn [request] {:body (str @counter)})
+;                        :post (fn [request] {:body (str (swap! counter inc))})]})
 
 ;; Map-based routes
 ;(def routes `{"/" {:interceptors [(body-params/body-params) http/html-body]
 ;                   :get home-page
 ;                   "/about" {:get about-page}}})
 
-;; Terse/Vector-based routes
-;(def routes
-;  `[[["/" {:get home-page}
-;      ^:interceptors [(body-params/body-params) http/html-body]
-;      ["/about" {:get about-page}]]]])
+; Terse/Vector-based routes
+(def routes
+ `[[["/" {:get home-page}
+     ^:interceptors [(body-params/body-params) http/html-body]
+     ["/about" {:get about-page}]
+     ["/test-data" (get {:get test-data} 1)]]]])
 
 
 ;; Consumed by firstapi.server/create-server
@@ -76,4 +87,22 @@
                                         ;:key-password "password"
                                         ;:ssl-port 8443
                                         :ssl? false}})
-
+;
+; (defn start []
+;   (http/start (http/create-server service-map)))
+;
+; ;; For interactive development
+; (defonce server (atom nil))
+;
+; (defn start-dev []
+;   (reset! server
+;           (http/start (http/create-server
+;                        (assoc service-map
+;                               ::http/join? false)))))
+;
+; (defn stop-dev []
+;   (http/stop @server))
+;
+; (defn restart []
+;   (stop-dev)
+;   (start-dev))
